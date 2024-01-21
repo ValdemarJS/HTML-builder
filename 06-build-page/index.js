@@ -64,16 +64,31 @@ async function compileStyles() {
 }
 
 // Копирование assets
-async function copyAssets() {
-  try {
-    const destPath = path.join(projectDistDir, 'assets');
-    await fs.promises.mkdir(destPath);
-    await fs.promises.copyFile(assetsDir, destPath);
-    console.log('Папка assets успешно скопирована');
-  } catch (error) {
-    console.error('Ошибка копирования assets:', error);
+function copyDirSync(src, dest) {
+    fs.mkdirSync(dest, { recursive: true }); // Создаем директорию назначения (создаст все несуществующие родительские директории)
+  
+    const files = fs.readdirSync(src); // Получаем список файлов в исходной директории
+  
+    for (const file of files) {
+      const srcPath = path.join(src, file);
+      const destPath = path.join(dest, file);
+  
+      if (fs.statSync(srcPath).isDirectory()) { // Если это директория - запускаем функцию заново 
+        copyDirSync(srcPath, destPath);
+      } else {
+        fs.copyFileSync(srcPath, destPath); // Если это файл - копируем его
+      }
+    }
   }
-}
+async function copyAssets() {
+    try {
+      const destPath = path.join(projectDistDir, 'assets');
+      copyDirSync(assetsDir, destPath); // копируем содержимое каталога assetsDir в destPath
+      console.log('Папка assets успешно скопирована');
+    } catch (error) {
+      console.error('Ошибка копирования assets:', error);
+    }
+  }
 
 // Запуск всех функций
 (async () => {
