@@ -66,14 +66,11 @@ async function compileStyles() {
 // Копирование assets
 function copyDirSync(src, dest) {
     fs.mkdirSync(dest, { recursive: true }); // Создаем директорию назначения (создаст все несуществующие родительские директории)
-  
     const files = fs.readdirSync(src); // Получаем список файлов в исходной директории
-  
     for (const file of files) {
       const srcPath = path.join(src, file);
       const destPath = path.join(dest, file);
-  
-      if (fs.statSync(srcPath).isDirectory()) { // Если это директория - запускаем функцию заново 
+      if (fs.statSync(srcPath).isDirectory()) { // Если это директория - запускаем функцию заново
         copyDirSync(srcPath, destPath);
       } else {
         fs.copyFileSync(srcPath, destPath); // Если это файл - копируем его
